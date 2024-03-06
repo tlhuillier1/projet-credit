@@ -6,7 +6,6 @@ import lombok.AllArgsConstructor;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
-import java.util.UUID;
 
 @RestController
 @RequestMapping("/loans")
@@ -25,12 +24,12 @@ public class LoanController {
     }
 
     @PutMapping("/update/{id}")
-    public Loan modifyLoan(@PathVariable("id") UUID id, @RequestBody Loan loan) {
+    public Loan modifyLoan(@PathVariable("id") Long id, @RequestBody Loan loan) {
         return loanService.modifyLoan(id, loan);
     }
 
     @DeleteMapping("/delete/{id}")
-    public String deleteLoan(@PathVariable("id") UUID id) {
+    public String deleteLoan(@PathVariable("id") Long id) {
         return loanService.deleteLoan(id);
     }
 }

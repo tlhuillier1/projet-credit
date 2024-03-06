@@ -5,8 +5,9 @@ import fr.miage.banque.repository.LoanRepository;
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.List;
-import java.util.UUID;
 
 @Service
 @AllArgsConstructor
@@ -16,6 +17,8 @@ public class LoanServiceImpl implements LoanService {
 
     @Override
     public Loan createLoan(Loan loan) {
+        loan.setCreatedAt(LocalDate.now());
+        loan.setUpdatedAt(LocalDateTime.now());
         return loanRepository.save(loan);
     }
 
@@ -25,11 +28,11 @@ public class LoanServiceImpl implements LoanService {
     }
 
     @Override
-    public Loan modifyLoan(UUID id, Loan loan) {
+    public Loan modifyLoan(Long id, Loan loan) {
         return loanRepository.findById(id)
                 .map(l -> {
                     l.setAmount(loan.getAmount());
-                    l.setDate(loan.getDate());
+                    l.setUpdatedAt(LocalDateTime.now());
                     l.setDuration(loan.getDuration());
                     return loanRepository.save(l);
                 })
@@ -37,7 +40,7 @@ public class LoanServiceImpl implements LoanService {
     }
 
     @Override
-    public String deleteLoan(UUID id) {
+    public String deleteLoan(Long id) {
         loanRepository.deleteById(id);
         return "Loan deleted";
     }
