@@ -32,4 +32,9 @@ public class LoanController {
     public String deleteLoan(@PathVariable("id") Long id) {
         return loanService.deleteLoan(id);
     }
+
+    @GetMapping("/status/{id}")
+    public String getStatus(@PathVariable("id") Long id) {
+        return loanService.getStatus(id);
+    }
 }

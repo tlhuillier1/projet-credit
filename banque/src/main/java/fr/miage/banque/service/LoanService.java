@@ -12,4 +12,6 @@ public interface LoanService {
     Loan modifyLoan(Long id, Loan loan);
 
     String deleteLoan(Long id);
+
+    String getStatus(Long id);
 }

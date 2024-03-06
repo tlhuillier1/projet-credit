@@ -1,14 +1,10 @@
 package fr.miage.banque.domain.entity;
 
-import jakarta.persistence.Entity;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
+import jakarta.persistence.*;
 import lombok.Data;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
-import java.util.UUID;
 
 @Entity
 @Data
@@ -24,4 +20,10 @@ public class Loan {
     public double amount;
 
     public int duration;
+
+    public LoanStatus status;
+
+    @ManyToOne
+    @JoinColumn(name = "clientId")
+    public Client client;
 }

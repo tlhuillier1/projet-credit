@@ -1,6 +1,7 @@
 package fr.miage.banque.service;
 
 import fr.miage.banque.domain.entity.Loan;
+import fr.miage.banque.domain.entity.LoanStatus;
 import fr.miage.banque.repository.LoanRepository;
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -19,6 +20,7 @@ public class LoanServiceImpl implements LoanService {
     public Loan createLoan(Loan loan) {
         loan.setCreatedAt(LocalDate.now());
         loan.setUpdatedAt(LocalDateTime.now());
+        loan.setStatus(LoanStatus.DEBUT);
         return loanRepository.save(loan);
     }
 
@@ -43,6 +45,13 @@ public class LoanServiceImpl implements LoanService {
     public String deleteLoan(Long id) {
         loanRepository.deleteById(id);
         return "Loan deleted";
+    }
+
+    @Override
+    public String getStatus(Long id) {
+        return loanRepository.findById(id)
+                .map(loan -> loan.getStatus().toString())
+                .orElseThrow(() -> new RuntimeException("Loan not found"));
     }
 
 }
