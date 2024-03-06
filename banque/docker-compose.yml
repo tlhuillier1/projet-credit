@@ -1,0 +1,17 @@
+version: '3.1'
+
+services:
+
+  db-banque:
+    image: postgres:bullseye
+    ports:
+      - "51432:5432"
+    environment:
+      POSTGRES_USER: "banqueUser"
+      POSTGRES_PASSWORD: "banquePassword"
+      POSTGRES_DB: "banqueDb"
+
+  consul:
+    image: hashicorp/consul:1.16.5
+    ports:
+      - "8500:8500"
