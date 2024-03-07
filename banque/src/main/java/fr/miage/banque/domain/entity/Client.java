@@ -1,32 +1,39 @@
 package fr.miage.banque.domain.entity;
 
+import com.fasterxml.jackson.annotation.JsonIdentityInfo;
+import com.fasterxml.jackson.annotation.JsonManagedReference;
+import com.fasterxml.jackson.annotation.ObjectIdGenerators;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.Email;
 import lombok.Data;
+import com.fasterxml.jackson.annotation.JsonView;
+
 
 import java.util.List;
 
 @Entity
 @Data
+@JsonIdentityInfo(generator = ObjectIdGenerators.PropertyGenerator.class,property = "id")
 public class Client {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    public Long id;
+    private Long id;
 
-    public String firstName;
+    private String firstName;
 
-    public String lastName;
+    private String lastName;
 
     @Email
-    public String email;
+    private String email;
 
-    public String address;
+    private String address;
 
-    public String job;
+    private String job;
 
-    public double salary3years;
+    private double salary3years;
 
-    @OneToMany(mappedBy = "client")
-    public List<Loan> loans;
+    @OneToMany(mappedBy = "client", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<Loan> loans;
 
 }
+
