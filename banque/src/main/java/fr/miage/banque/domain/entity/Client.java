@@ -1,12 +1,11 @@
 package fr.miage.banque.domain.entity;
 
 import com.fasterxml.jackson.annotation.JsonIdentityInfo;
-import com.fasterxml.jackson.annotation.JsonManagedReference;
 import com.fasterxml.jackson.annotation.ObjectIdGenerators;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.Email;
 import lombok.Data;
-import com.fasterxml.jackson.annotation.JsonView;
+import org.springframework.hateoas.RepresentationModel;
 
 
 import java.util.List;
@@ -14,7 +13,7 @@ import java.util.List;
 @Entity
 @Data
 @JsonIdentityInfo(generator = ObjectIdGenerators.PropertyGenerator.class,property = "id")
-public class Client {
+public class Client extends RepresentationModel<Client> {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;

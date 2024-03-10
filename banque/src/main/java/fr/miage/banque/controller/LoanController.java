@@ -9,9 +9,16 @@ import fr.miage.banque.service.LoanService;
 import lombok.AllArgsConstructor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.hateoas.CollectionModel;
+import org.springframework.hateoas.IanaLinkRelations;
+import org.springframework.hateoas.RepresentationModel;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+
+import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.linkTo;
+import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.methodOn;
 
 @RestController
 @RequestMapping("/loans")
@@ -23,38 +30,51 @@ public class LoanController {
     private final ClientRepository clientRepository;
 
     @PostMapping("/create")
-    public Loan createLoan(@RequestBody LoanRequestDTO loanRequestDTO) {
-        logger.info("Loan: " + loanRequestDTO.toString());
+    public ResponseEntity<Loan> createLoan(@RequestBody LoanRequestDTO loanRequestDTO) {
         Client client = clientRepository.findById(loanRequestDTO.getClientId()).orElseThrow(() -> new RuntimeException("Client not found"));
-        Loan loan = loanRequestDTO.getLoan();
-        loan.setClient(client);
-        return loanService.createLoan(loan);
+        Loan requestDTOLoan = loanRequestDTO.getLoan();
+        requestDTOLoan.setClient(client);
+        Loan loan = loanService.createLoan(requestDTOLoan);
+        loan.add(linkTo(methodOn(LoanController.class).getLoan(loan.getId())).withSelfRel());
+        loan.add(linkTo(methodOn(LoanController.class).getLoans()).withRel(IanaLinkRelations.COLLECTION));
+
+        return ResponseEntity.created(linkTo(methodOn(LoanController.class).getLoan(loan.getId())).toUri()).body(loan);
     }
 
     @GetMapping
-    public List<Loan> getLoans() {
-        logger.info("Getting all loans");
-        return loanService.getLoans();
+    public ResponseEntity<CollectionModel<Loan>> getLoans() {
+        List<Loan> loans = loanService.getLoans();
+        for (Loan loan : loans) {
+            loan.add(linkTo(methodOn(LoanController.class).getLoan(loan.getId())).withSelfRel());
+            loan.add(linkTo(methodOn(LoanController.class).getLoans()).withRel(IanaLinkRelations.COLLECTION));
+        }
+
+        return ResponseEntity.ok(CollectionModel.of(loans, linkTo(methodOn(LoanController.class).getLoans()).withSelfRel()));
     }
 
     @GetMapping("/{id}")
-    public Loan getLoan(@PathVariable("id") Long id) {
-        logger.info("Getting loan with id: " + id);
-        return loanService.getLoan(id);
+    public ResponseEntity<Loan> getLoan(@PathVariable("id") Long id) {
+        Loan loan = loanService.getLoan(id);
+        loan.add(linkTo(methodOn(LoanController.class).getLoan(id)).withSelfRel());
+        loan.add(linkTo(methodOn(LoanController.class).getLoans()).withRel(IanaLinkRelations.COLLECTION));
+        return ResponseEntity.ok(loan);
     }
 
     @PutMapping("/update/{id}")
-    public Loan modifyLoan(@PathVariable("id") Long id, @RequestBody Loan loan) {
-        return loanService.modifyLoan(id, loan);
+    public ResponseEntity<Loan> modifyLoan(@PathVariable("id") Long id, @RequestBody Loan loan) {
+        Loan modifiedLoan = loanService.modifyLoan(id, loan);
+        modifiedLoan.add(linkTo(methodOn(LoanController.class).getLoan(id)).withSelfRel());
+        modifiedLoan.add(linkTo(methodOn(LoanController.class).getLoans()).withRel(IanaLinkRelations.COLLECTION));
+        return ResponseEntity.ok(modifiedLoan);
     }
 
     @DeleteMapping("/delete/{id}")
-    public String deleteLoan(@PathVariable("id") Long id) {
-        return loanService.deleteLoan(id);
+    public ResponseEntity<String> deleteLoan(@PathVariable("id") Long id) {
+        return ResponseEntity.ok(loanService.deleteLoan(id));
     }
 
     @GetMapping("/status/{id}")
-    public String getStatus(@PathVariable("id") Long id) {
-        return loanService.getStatus(id);
+    public ResponseEntity<String> getStatus(@PathVariable("id") Long id) {
+        return ResponseEntity.ok(loanService.getStatus(id));
     }
 }
