@@ -37,6 +37,12 @@ public class LoanController {
         return loanService.getLoans();
     }
 
+    @GetMapping("/{id}")
+    public Loan getLoan(@PathVariable("id") Long id) {
+        logger.info("Getting loan with id: " + id);
+        return loanService.getLoan(id);
+    }
+
     @PutMapping("/update/{id}")
     public Loan modifyLoan(@PathVariable("id") Long id, @RequestBody Loan loan) {
         return loanService.modifyLoan(id, loan);

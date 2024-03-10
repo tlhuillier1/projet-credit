@@ -24,6 +24,11 @@ public class ClientController {
         return clientService.getClients();
     }
 
+    @GetMapping("/{id}")
+    public Client getClient(@PathVariable("id") Long id) {
+        return clientService.getClient(id);
+    }
+
     @PutMapping("/update/{id}")
     public Client modifyClient(@PathVariable("id") Long id, @RequestBody Client client) {
         return clientService.modifyClient(id, client);

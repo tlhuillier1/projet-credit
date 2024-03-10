@@ -9,6 +9,8 @@ public interface ClientService {
 
     List<Client> getClients();
 
+    Client getClient(Long id);
+
     Client modifyClient(Long id, Client client);
 
     String deleteClient(Long id);

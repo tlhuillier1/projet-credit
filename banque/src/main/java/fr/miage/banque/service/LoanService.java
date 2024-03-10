@@ -9,6 +9,8 @@ public interface LoanService {
 
     List<Loan> getLoans();
 
+    Loan getLoan(Long id);
+
     Loan modifyLoan(Long id, Loan loan);
 
     String deleteLoan(Long id);
