@@ -6,6 +6,7 @@ import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.NoSuchElementException;
 
 @Service
 @AllArgsConstructor
@@ -25,7 +26,7 @@ public class ClientServiceImpl implements ClientService {
 
     @Override
     public Client getClient(Long id) {
-        return clientRepository.findById(id).orElseThrow(() -> new RuntimeException("Client not found"));
+        return clientRepository.findById(id).orElseThrow(() -> new NoSuchElementException("Client not found"));
     }
 
     @Override
@@ -40,7 +41,7 @@ public class ClientServiceImpl implements ClientService {
                     c.setSalary3years(client.getSalary3years());
                     return clientRepository.save(c);
                 })
-                .orElseThrow(() -> new RuntimeException("Client not found"));
+                .orElseThrow(() -> new NoSuchElementException("Client not found"));
     }
 
     @Override

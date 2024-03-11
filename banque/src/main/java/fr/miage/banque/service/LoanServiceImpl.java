@@ -9,6 +9,7 @@ import org.springframework.stereotype.Service;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.NoSuchElementException;
 
 @Service
 @AllArgsConstructor
@@ -31,7 +32,7 @@ public class LoanServiceImpl implements LoanService {
 
     @Override
     public Loan getLoan(Long id) {
-        return loanRepository.findById(id).orElseThrow(() -> new RuntimeException("Loan not found"));
+        return loanRepository.findById(id).orElseThrow(() -> new NoSuchElementException("Loan not found"));
     }
 
     @Override
@@ -43,7 +44,7 @@ public class LoanServiceImpl implements LoanService {
                     l.setDuration(loan.getDuration());
                     return loanRepository.save(l);
                 })
-                .orElseThrow(() -> new RuntimeException("Loan not found"));
+                .orElseThrow(() -> new NoSuchElementException("Loan not found"));
     }
 
     @Override
@@ -56,7 +57,7 @@ public class LoanServiceImpl implements LoanService {
     public String getStatus(Long id) {
         return loanRepository.findById(id)
                 .map(loan -> loan.getStatus().toString())
-                .orElseThrow(() -> new RuntimeException("Loan not found"));
+                .orElseThrow(() -> new NoSuchElementException("Loan not found"));
     }
 
 }

@@ -10,6 +10,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.NoSuchElementException;
 
 import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.linkTo;
 import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.methodOn;
@@ -33,30 +34,44 @@ public class ClientController {
     @GetMapping
     public ResponseEntity<CollectionModel<Client>> getClients() {
         List<Client> clients = clientService.getClients();
-        for (Client client : clients) {
-            client.add(linkTo(methodOn(ClientController.class).getClient(client.getId())).withSelfRel());
-            client.add(linkTo(methodOn(ClientController.class).getClients()).withRel(IanaLinkRelations.COLLECTION));
-        }
+        if (clients.isEmpty()) {
+            return ResponseEntity.noContent().build();
+        } else {
+            for (Client client : clients) {
+                client.add(linkTo(methodOn(ClientController.class).getClient(client.getId())).withSelfRel());
+                client.add(linkTo(methodOn(ClientController.class).getClients()).withRel(IanaLinkRelations.COLLECTION));
+            }
 
-        return ResponseEntity.ok(CollectionModel.of(clients, linkTo(methodOn(ClientController.class).getClients()).withSelfRel()));
+            return ResponseEntity.ok(CollectionModel.of(clients, linkTo(methodOn(ClientController.class).getClients()).withSelfRel()));
+        }
     }
 
     @GetMapping("/{id}")
     public ResponseEntity<Client> getClient(@PathVariable("id") Long id) {
-        Client client = clientService.getClient(id);
-        client.add(linkTo(methodOn(ClientController.class).getClient(id)).withSelfRel());
-        client.add(linkTo(methodOn(ClientController.class).getClients()).withRel(IanaLinkRelations.COLLECTION));
-        client.add(linkTo(methodOn(LoanController.class).createLoan(null)).withRel("loans"));
-        return ResponseEntity.ok(client);
+        try {
+            Client client = clientService.getClient(id);
+            client.add(linkTo(methodOn(ClientController.class).getClient(id)).withSelfRel());
+            client.add(linkTo(methodOn(ClientController.class).getClients()).withRel(IanaLinkRelations.COLLECTION));
+            client.add(linkTo(methodOn(LoanController.class).createLoan(null)).withRel("loans"));
+            return ResponseEntity.ok(client);
+        } catch (NoSuchElementException e) {
+            return ResponseEntity.notFound().build();
+        }
+
     }
 
     @PutMapping("/update/{id}")
     public ResponseEntity<Client> modifyClient(@PathVariable("id") Long id, @RequestBody Client client) {
-        Client modifiedClient = clientService.modifyClient(id, client);
-        modifiedClient.add(linkTo(methodOn(ClientController.class).getClient(id)).withSelfRel());
-        modifiedClient.add(linkTo(methodOn(ClientController.class).getClients()).withRel(IanaLinkRelations.COLLECTION));
-        client.add(linkTo(methodOn(LoanController.class).createLoan(null)).withRel("loans"));
-        return ResponseEntity.ok(modifiedClient);
+        try {
+            Client modifiedClient = clientService.modifyClient(id, client);
+            modifiedClient.add(linkTo(methodOn(ClientController.class).getClient(id)).withSelfRel());
+            modifiedClient.add(linkTo(methodOn(ClientController.class).getClients()).withRel(IanaLinkRelations.COLLECTION));
+            client.add(linkTo(methodOn(LoanController.class).createLoan(null)).withRel("loans"));
+            return ResponseEntity.ok(modifiedClient);
+        } catch (NoSuchElementException e) {
+            return ResponseEntity.notFound().build();
+        }
+
     }
 
     @DeleteMapping("/delete/{id}")
