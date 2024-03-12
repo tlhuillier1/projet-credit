@@ -8,7 +8,7 @@ import java.util.List;
 public interface LoanService {
     Loan createLoan(Loan loan);
 
-    List<Loan> getLoans();
+    List<Loan> getLoans(String status);
 
     Loan getLoan(Long id);
 
@@ -19,8 +19,6 @@ public interface LoanService {
     String getStatus(Long id);
 
     Loan applyForLoan(Long id);
-
-    List<Loan> getLoansInStudy();
 
     Loan reviewLoan(Long id, String decision, Advisor advisor);
 }

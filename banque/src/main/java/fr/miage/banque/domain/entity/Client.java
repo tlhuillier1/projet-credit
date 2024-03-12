@@ -14,7 +14,7 @@ import java.util.List;
 @Entity
 @Data
 @JsonIdentityInfo(generator = ObjectIdGenerators.PropertyGenerator.class,property = "id")
-public class Client extends RepresentationModel<Client> {
+public class Client {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;

@@ -27,8 +27,12 @@ public class LoanServiceImpl implements LoanService {
     }
 
     @Override
-    public List<Loan> getLoans() {
-        return loanRepository.findAll();
+    public List<Loan> getLoans(String status) {
+        if (status != null) {
+            return loanRepository.findByStatus(LoanStatus.valueOf(status));
+        } else {
+            return loanRepository.findAll();
+        }
     }
 
     @Override
@@ -69,11 +73,6 @@ public class LoanServiceImpl implements LoanService {
                     return loanRepository.save(loan);
                 })
                 .orElseThrow(() -> new NoSuchElementException("Loan not found"));
-    }
-
-    @Override
-    public List<Loan> getLoansInStudy() {
-        return loanRepository.findByStatus(LoanStatus.ETUDE);
     }
 
     @Override
