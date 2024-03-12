@@ -29,7 +29,7 @@ public class Loan extends RepresentationModel<Loan> {
 
     @OneToOne
     @JoinColumn(name = "reviewedBy")
-    public Advisor reviewedBy;
+    public Worker reviewedBy;
 
     @ManyToOne
     @JoinColumn(name = "clientId")

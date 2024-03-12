@@ -1,8 +1,8 @@
 package fr.miage.banque.service;
 
-import fr.miage.banque.domain.entity.Advisor;
 import fr.miage.banque.domain.entity.Loan;
 import fr.miage.banque.domain.entity.LoanStatus;
+import fr.miage.banque.domain.entity.Worker;
 import fr.miage.banque.repository.LoanRepository;
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -76,7 +76,7 @@ public class LoanServiceImpl implements LoanService {
     }
 
     @Override
-    public Loan reviewLoan(Long id, String decision, Advisor advisor) {
+    public Loan reviewLoan(Long id, String decision, Worker advisor) {
         LoanStatus loanStatus;
         if (decision.equals("valide")) {
             loanStatus = LoanStatus.VALIDATION;

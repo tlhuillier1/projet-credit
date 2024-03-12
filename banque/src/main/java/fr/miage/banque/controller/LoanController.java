@@ -2,11 +2,12 @@ package fr.miage.banque.controller;
 
 import fr.miage.banque.assembler.LoanAssembler;
 import fr.miage.banque.domain.dto.LoanRequestDTO;
-import fr.miage.banque.domain.entity.Advisor;
+import fr.miage.banque.domain.entity.BankJob;
 import fr.miage.banque.domain.entity.Client;
 import fr.miage.banque.domain.entity.Loan;
+import fr.miage.banque.domain.entity.Worker;
 import fr.miage.banque.repository.ClientRepository;
-import fr.miage.banque.repository.AdvisorRepository;
+import fr.miage.banque.repository.WorkerRepository;
 import fr.miage.banque.service.EventService;
 import fr.miage.banque.service.LoanService;
 import lombok.AllArgsConstructor;
@@ -28,7 +29,7 @@ import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.methodOn;
 public class LoanController {
     private final LoanService loanService;
     private final ClientRepository clientRepository;
-    private final AdvisorRepository advisorRepository;
+    private final WorkerRepository workerRepository;
     private final EventService eventService;
     private final LoanAssembler loanAssembler;
 
@@ -115,7 +116,10 @@ public class LoanController {
     @PutMapping("/{id}/review")
     public ResponseEntity<EntityModel<Loan>> reviewLoan(@PathVariable("id") Long id, @RequestParam String decision, @RequestParam Long advisorId) {
         try {
-            Advisor advisor = advisorRepository.findById(advisorId).orElseThrow(() -> new NoSuchElementException("Advisor not found"));
+            Worker advisor = workerRepository.findById(advisorId).orElseThrow(() -> new NoSuchElementException("Advisor not found"));
+            if (advisor.getJob() != BankJob.ADVISOR) {
+                throw new IllegalArgumentException("Worker is not an advisor");
+            }
             Loan loan = loanService.reviewLoan(id, decision, advisor);
             eventService.createEvent(loan);
             EntityModel<Loan> loanModel = loanAssembler.toModel(loan);
