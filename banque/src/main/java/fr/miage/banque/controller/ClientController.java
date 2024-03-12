@@ -23,7 +23,7 @@ import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.methodOn;
 @AllArgsConstructor
 public class ClientController {
     private final ClientService clientService;
-    private ClientAssembler assembler;
+    private final ClientAssembler assembler;
 
     @PostMapping
     public ResponseEntity<EntityModel<Client>> createClient(@RequestBody Client client) {
@@ -34,17 +34,15 @@ public class ClientController {
                 .body(clientModel);
     }
 
-    // problème avec HATEOAS
     @GetMapping
-    public ResponseEntity<CollectionModel<Client>> getClients() {
+    public ResponseEntity<CollectionModel<EntityModel<Client>>> getClients() {
         List<Client> clients = clientService.getClients();
         if (clients.isEmpty()) {
             return ResponseEntity.noContent().build();
         } else {
-            clients.stream().map(assembler::toModel).collect(Collectors.toList());
-            CollectionModel<Client> model = CollectionModel.of(clients);
-            model.add(linkTo(methodOn(ClientController.class).getClients()).withSelfRel());
-            return ResponseEntity.ok(model);
+            CollectionModel<EntityModel<Client>> collectionModel = assembler.toCollectionModel(clients);
+            collectionModel.add(linkTo(methodOn(ClientController.class).getClients()).withSelfRel());
+            return ResponseEntity.ok(collectionModel);
         }
     }
 
