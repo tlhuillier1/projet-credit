@@ -28,6 +28,10 @@ public class Loan extends RepresentationModel<Loan> {
 
     public LoanStatus status;
 
+    @OneToOne
+    @JoinColumn(name = "reviewedBy")
+    public Advisor reviewedBy;
+
     @ManyToOne
     @JoinColumn(name = "clientId")
     public Client client;

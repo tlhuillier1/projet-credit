@@ -1,9 +1,11 @@
 package fr.miage.banque.controller;
 
 import fr.miage.banque.domain.dto.LoanRequestDTO;
+import fr.miage.banque.domain.entity.Advisor;
 import fr.miage.banque.domain.entity.Client;
 import fr.miage.banque.domain.entity.Loan;
 import fr.miage.banque.repository.ClientRepository;
+import fr.miage.banque.repository.AdvisorRepository;
 import fr.miage.banque.service.LoanService;
 import lombok.AllArgsConstructor;
 import org.springframework.hateoas.CollectionModel;
@@ -23,6 +25,7 @@ import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.methodOn;
 public class LoanController {
     private final LoanService loanService;
     private final ClientRepository clientRepository;
+    private final AdvisorRepository advisorRepository;
 
     @PostMapping("/create")
     public ResponseEntity<Loan> createLoan(@RequestBody LoanRequestDTO loanRequestDTO) {
@@ -33,7 +36,7 @@ public class LoanController {
             Loan loan = loanService.createLoan(requestDTOLoan);
             loan.add(linkTo(methodOn(LoanController.class).getLoan(loan.getId())).withSelfRel());
             loan.add(linkTo(methodOn(LoanController.class).getLoans()).withRel(IanaLinkRelations.COLLECTION));
-
+            loan.add(linkTo(methodOn(LoanController.class).applyForLoan(loan.getId())).withRel("apply"));
             return ResponseEntity.created(linkTo(methodOn(LoanController.class).getLoan(loan.getId())).toUri()).body(loan);
         } catch (NoSuchElementException e) {
             return ResponseEntity.notFound().build();
@@ -49,8 +52,8 @@ public class LoanController {
             for (Loan loan : loans) {
                 loan.add(linkTo(methodOn(LoanController.class).getLoan(loan.getId())).withSelfRel());
                 loan.add(linkTo(methodOn(LoanController.class).getLoans()).withRel(IanaLinkRelations.COLLECTION));
+                loan.add(linkTo(methodOn(LoanController.class).applyForLoan(loan.getId())).withRel("apply"));
             }
-
             return ResponseEntity.ok(CollectionModel.of(loans, linkTo(methodOn(LoanController.class).getLoans()).withSelfRel()));
         }
     }
@@ -61,6 +64,7 @@ public class LoanController {
             Loan loan = loanService.getLoan(id);
             loan.add(linkTo(methodOn(LoanController.class).getLoan(id)).withSelfRel());
             loan.add(linkTo(methodOn(LoanController.class).getLoans()).withRel(IanaLinkRelations.COLLECTION));
+            loan.add(linkTo(methodOn(LoanController.class).applyForLoan(id)).withRel("apply"));
             return ResponseEntity.ok(loan);
         } catch (NoSuchElementException e) {
             return ResponseEntity.notFound().build();
@@ -92,4 +96,46 @@ public class LoanController {
             return ResponseEntity.notFound().build();
         }
     }
+
+    @PutMapping("/apply/{id}")
+    public ResponseEntity<Loan> applyForLoan(@PathVariable("id") Long id) {
+        try {
+            Loan loan = loanService.applyForLoan(id);
+            loan.add(linkTo(methodOn(LoanController.class).getLoan(id)).withSelfRel());
+            loan.add(linkTo(methodOn(LoanController.class).getLoans()).withRel(IanaLinkRelations.COLLECTION));
+            return ResponseEntity.ok(loan);
+        } catch (NoSuchElementException e) {
+            return ResponseEntity.notFound().build();
+        }
+    }
+
+    @GetMapping("/study")
+    public ResponseEntity<List<Loan>> getLoansInStudy() {
+        List<Loan> loans = loanService.getLoansInStudy();
+        if (loans.isEmpty()) {
+            return ResponseEntity.noContent().build();
+        } else {
+            for (Loan loan : loans) {
+                loan.add(linkTo(methodOn(LoanController.class).getLoan(loan.getId())).withSelfRel());
+                loan.add(linkTo(methodOn(LoanController.class).getLoans()).withRel(IanaLinkRelations.COLLECTION));
+            }
+            return ResponseEntity.ok(loans);
+        }
+    }
+
+    @PutMapping("/review/{id}")
+    public ResponseEntity<Loan> reviewLoan(@PathVariable("id") Long id, @RequestParam String decision, @RequestParam Long advisorId) {
+        try {
+            Advisor advisor = advisorRepository.findById(advisorId).orElseThrow(() -> new NoSuchElementException("Advisor not found"));
+            Loan loan = loanService.reviewLoan(id, decision, advisor);
+            loan.add(linkTo(methodOn(LoanController.class).getLoan(id)).withSelfRel());
+            loan.add(linkTo(methodOn(LoanController.class).getLoans()).withRel(IanaLinkRelations.COLLECTION));
+            return ResponseEntity.ok(loan);
+        } catch (NoSuchElementException e) {
+            return ResponseEntity.notFound().build();
+        } catch  (IllegalArgumentException e) {
+            return ResponseEntity.badRequest().build();
+        }
+    }
+
 }

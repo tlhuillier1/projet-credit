@@ -1,5 +1,6 @@
 package fr.miage.banque.service;
 
+import fr.miage.banque.domain.entity.Advisor;
 import fr.miage.banque.domain.entity.Loan;
 import fr.miage.banque.domain.entity.LoanStatus;
 import fr.miage.banque.repository.LoanRepository;
@@ -60,4 +61,37 @@ public class LoanServiceImpl implements LoanService {
                 .orElseThrow(() -> new NoSuchElementException("Loan not found"));
     }
 
+    @Override
+    public Loan applyForLoan(Long id) {
+        return loanRepository.findById(id)
+                .map(loan -> {
+                    loan.setStatus(LoanStatus.ETUDE);
+                    return loanRepository.save(loan);
+                })
+                .orElseThrow(() -> new NoSuchElementException("Loan not found"));
+    }
+
+    @Override
+    public List<Loan> getLoansInStudy() {
+        return loanRepository.findByStatus(LoanStatus.ETUDE);
+    }
+
+    @Override
+    public Loan reviewLoan(Long id, String decision, Advisor advisor) {
+        LoanStatus loanStatus;
+        if (decision.equals("valide")) {
+            loanStatus = LoanStatus.VALIDATION;
+        } else if (decision.equals("refuse")) {
+            loanStatus = LoanStatus.REJET;
+        } else {
+            throw new IllegalArgumentException("Invalid decision");
+        }
+        return loanRepository.findById(id)
+                .map(loan -> {
+                    loan.setStatus(loanStatus);
+                    loan.setReviewedBy(advisor);
+                    return loanRepository.save(loan);
+                })
+                .orElseThrow(() -> new NoSuchElementException("Loan not found"));
+    }
 }
