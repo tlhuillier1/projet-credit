@@ -31,6 +31,10 @@ public class Loan extends RepresentationModel<Loan> {
     @JoinColumn(name = "reviewedBy")
     public Worker reviewedBy;
 
+    @OneToOne
+    @JoinColumn(name = "validateBy")
+    public Worker validateBy;
+
     @ManyToOne
     @JoinColumn(name = "clientId")
     public Client client;
