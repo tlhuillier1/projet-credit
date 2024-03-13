@@ -1,9 +1,11 @@
 package fr.miage.banque.service;
 
+import fr.miage.banque.domain.entity.BankJob;
 import fr.miage.banque.domain.entity.Loan;
 import fr.miage.banque.domain.entity.LoanStatus;
 import fr.miage.banque.domain.entity.Worker;
 import fr.miage.banque.repository.LoanRepository;
+import fr.miage.banque.repository.WorkerRepository;
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Service;
 
@@ -17,12 +19,18 @@ import java.util.NoSuchElementException;
 public class LoanServiceImpl implements LoanService {
 
     private final LoanRepository loanRepository;
+    private final WorkerRepository workerRepository;
 
     @Override
     public Loan createLoan(Loan loan) {
         loan.setCreatedAt(LocalDate.now());
         loan.setUpdatedAt(LocalDateTime.now());
         loan.setStatus(LoanStatus.DEBUT);
+        Worker worker = new Worker();
+        worker.setFirstName("John");
+        worker.setLastName("Doe");
+        worker.setJob(BankJob.ADVISOR);
+        workerRepository.save(worker);
         return loanRepository.save(loan);
     }
 
