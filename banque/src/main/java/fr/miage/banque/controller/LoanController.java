@@ -8,6 +8,7 @@ import fr.miage.banque.domain.entity.LoanApplication;
 import fr.miage.banque.domain.entity.Worker;
 import fr.miage.banque.repository.ClientRepository;
 import fr.miage.banque.repository.WorkerRepository;
+import fr.miage.banque.service.CreditService;
 import fr.miage.banque.service.EventService;
 import fr.miage.banque.service.LoanService;
 import io.github.resilience4j.circuitbreaker.annotation.CircuitBreaker;
@@ -34,6 +35,7 @@ public class LoanController {
     private final ClientRepository clientRepository;
     private final WorkerRepository workerRepository;
     private final EventService eventService;
+    private final CreditService creditService;
     private final LoanAssembler loanAssembler;
     protected RestTemplate restTemplate;
 
@@ -162,6 +164,7 @@ public class LoanController {
             }
             LoanApplication loanApplication = loanService.validateLoan(id, advisor, decision);
             eventService.createEvent(loanApplication);
+            creditService.createCredit(loanApplication);
             EntityModel<LoanApplication> loanModel = loanAssembler.toModel(loanApplication);
             return ResponseEntity.ok(loanModel);
         } catch (NoSuchElementException e) {

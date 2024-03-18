@@ -15,29 +15,29 @@ import java.time.LocalDateTime;
 public class LoanApplication extends RepresentationModel<LoanApplication> {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    public Long id;
+    private Long id;
 
-    public LocalDate createdAt;
+    private LocalDate createdAt;
 
-    public LocalDateTime updatedAt;
+    private LocalDateTime updatedAt;
 
-    public double amount;
+    private double amount;
 
-    public int duration;
+    private int duration;
 
     private double rate;
 
-    public LoanStatus status;
+    private LoanStatus status;
 
     @OneToOne
     @JoinColumn(name = "reviewedBy")
-    public Worker reviewedBy;
+    private Worker reviewedBy;
 
     @OneToOne
     @JoinColumn(name = "validateBy")
-    public Worker validateBy;
+    private Worker validateBy;
 
     @ManyToOne
     @JoinColumn(name = "clientId")
-    public Client client;
+    private Client client;
 }

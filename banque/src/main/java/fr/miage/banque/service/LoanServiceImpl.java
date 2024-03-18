@@ -19,18 +19,12 @@ import java.util.NoSuchElementException;
 public class LoanServiceImpl implements LoanService {
 
     private final LoanRepository loanRepository;
-    private final WorkerRepository workerRepository;
 
     @Override
     public LoanApplication createLoan(LoanApplication loanApplication) {
         loanApplication.setCreatedAt(LocalDate.now());
         loanApplication.setUpdatedAt(LocalDateTime.now());
         loanApplication.setStatus(LoanStatus.DEBUT);
-        Worker worker = new Worker();
-        worker.setFirstName("John");
-        worker.setLastName("Doe");
-        worker.setJob(BankJob.ADVISOR);
-        workerRepository.save(worker);
         return loanRepository.save(loanApplication);
     }
 
@@ -45,7 +39,7 @@ public class LoanServiceImpl implements LoanService {
 
     @Override
     public LoanApplication getLoan(Long id) {
-        return loanRepository.findById(id).orElseThrow(() -> new NoSuchElementException("Loan not found"));
+        return loanRepository.findById(id).orElseThrow(() -> new NoSuchElementException("Loan application not found"));
     }
 
     @Override
@@ -57,7 +51,7 @@ public class LoanServiceImpl implements LoanService {
                     l.setDuration(loanApplication.getDuration());
                     return loanRepository.save(l);
                 })
-                .orElseThrow(() -> new NoSuchElementException("Loan not found"));
+                .orElseThrow(() -> new NoSuchElementException("Loan application not found"));
     }
 
     @Override
@@ -70,7 +64,7 @@ public class LoanServiceImpl implements LoanService {
     public String getStatus(Long id) {
         return loanRepository.findById(id)
                 .map(loan -> loan.getStatus().toString())
-                .orElseThrow(() -> new NoSuchElementException("Loan not found"));
+                .orElseThrow(() -> new NoSuchElementException("Loan application not found"));
     }
 
     @Override
@@ -80,7 +74,7 @@ public class LoanServiceImpl implements LoanService {
                     loan.setStatus(LoanStatus.ETUDE);
                     return loanRepository.save(loan);
                 })
-                .orElseThrow(() -> new NoSuchElementException("Loan not found"));
+                .orElseThrow(() -> new NoSuchElementException("Loan application not found"));
     }
 
     @Override
@@ -99,7 +93,7 @@ public class LoanServiceImpl implements LoanService {
                     loan.setReviewedBy(advisor);
                     return loanRepository.save(loan);
                 })
-                .orElseThrow(() -> new NoSuchElementException("Loan not found"));
+                .orElseThrow(() -> new NoSuchElementException("Loan application not found"));
     }
 
     @Override
@@ -118,6 +112,6 @@ public class LoanServiceImpl implements LoanService {
                     loan.setValidateBy(worker);
                     return loanRepository.save(loan);
                 })
-                .orElseThrow(() -> new NoSuchElementException("Loan not found"));
+                .orElseThrow(() -> new NoSuchElementException("Loan application not found"));
     }
 }

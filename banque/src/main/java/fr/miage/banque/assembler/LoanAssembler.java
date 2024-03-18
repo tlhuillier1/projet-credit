@@ -1,5 +1,6 @@
 package fr.miage.banque.assembler;
 
+import fr.miage.banque.controller.CreditController;
 import fr.miage.banque.controller.LoanController;
 import fr.miage.banque.domain.entity.LoanApplication;
 import fr.miage.banque.domain.entity.LoanStatus;
@@ -24,6 +25,13 @@ public class LoanAssembler implements RepresentationModelAssembler<LoanApplicati
                 break;
             case LoanStatus.ETUDE:
                 loanModel.add(linkTo(methodOn(LoanController.class).reviewLoan(loanApplication.getId(), null, null)).withRel("review"));
+                break;
+            case LoanStatus.ACCEPTATION:
+                loanModel.add(linkTo(methodOn(LoanController.class).validateLoan(loanApplication.getId(), null, null)).withRel("validate"));
+                break;
+            case LoanStatus.VALIDATION:
+                loanModel.add(linkTo(methodOn(CreditController.class).getCredit(null)).withRel("crédit"));
+                loanModel.add(linkTo(methodOn(CreditController.class).getCredits()).withRel("crédit"));
                 break;
         }
         return loanModel;
