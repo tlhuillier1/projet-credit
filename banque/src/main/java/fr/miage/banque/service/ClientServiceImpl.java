@@ -33,8 +33,8 @@ public class ClientServiceImpl implements ClientService {
     public Client modifyClient(Long id, Client client) {
         return clientRepository.findById(id)
                 .map(c -> {
-                    c.setFirstName(client.getFirstName());
-                    c.setLastName(client.getLastName());
+                    c.setFirstname(client.getFirstname());
+                    c.setLastname(client.getLastname());
                     c.setEmail(client.getEmail());
                     c.setAddress(client.getAddress());
                     c.setJob(client.getJob());

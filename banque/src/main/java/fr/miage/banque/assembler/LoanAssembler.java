@@ -1,6 +1,7 @@
 package fr.miage.banque.assembler;
 
 import fr.miage.banque.controller.CreditController;
+import fr.miage.banque.controller.EventController;
 import fr.miage.banque.controller.LoanController;
 import fr.miage.banque.domain.entity.LoanApplication;
 import fr.miage.banque.domain.entity.LoanStatus;
@@ -19,6 +20,7 @@ public class LoanAssembler implements RepresentationModelAssembler<LoanApplicati
         EntityModel<LoanApplication> loanModel = EntityModel.of(loanApplication);
         loanModel.add(linkTo(methodOn(LoanController.class).getLoan(loanApplication.getId())).withSelfRel());
         loanModel.add(linkTo(methodOn(LoanController.class).getLoans(null)).withRel(IanaLinkRelations.COLLECTION));
+        loanModel.add(linkTo(methodOn(EventController.class).getEvent(loanApplication.getId())).withRel("events"));
         switch (loanApplication.getStatus()) {
             case LoanStatus.DEBUT:
                 loanModel.add(linkTo(methodOn(LoanController.class).applyForLoan(loanApplication.getId())).withRel("apply"));

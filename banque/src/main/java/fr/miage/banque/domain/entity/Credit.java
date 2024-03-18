@@ -15,10 +15,11 @@ public class Credit extends RepresentationModel<Credit> {
 
     private double due;
 
+    @Column(name = "acceptation_date")
     private LocalDate acceptationDate;
 
     @OneToOne
-    @JoinColumn(name = "loanApplicationId")
+    @JoinColumn(name = "loan_application_id")
     private LoanApplication loanApplication;
 
 }

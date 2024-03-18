@@ -3,11 +3,13 @@ package fr.miage.banque.controller;
 import fr.miage.banque.assembler.CreditAssembler;
 import fr.miage.banque.domain.entity.Credit;
 import fr.miage.banque.service.CreditService;
+import jakarta.websocket.server.PathParam;
 import lombok.AllArgsConstructor;
 import org.springframework.hateoas.CollectionModel;
 import org.springframework.hateoas.EntityModel;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -38,7 +40,7 @@ public class CreditController {
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<EntityModel<Credit>> getCredit(Long id) {
+    public ResponseEntity<EntityModel<Credit>> getCredit(@PathVariable("id") Long id) {
         try {
             Credit credit = creditService.getCredit(id);
             EntityModel<Credit> creditModel = creditAssembler.toModel(credit);

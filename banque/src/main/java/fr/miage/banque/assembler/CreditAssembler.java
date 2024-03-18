@@ -1,6 +1,7 @@
 package fr.miage.banque.assembler;
 
 import fr.miage.banque.controller.CreditController;
+import fr.miage.banque.controller.EventController;
 import fr.miage.banque.domain.entity.Credit;
 import fr.miage.banque.domain.entity.LoanApplication;
 import org.springframework.context.annotation.Configuration;
@@ -19,6 +20,7 @@ public class CreditAssembler implements RepresentationModelAssembler<Credit, Ent
         EntityModel<Credit> creditModel = EntityModel.of(credit);
         creditModel.add(linkTo(methodOn(CreditController.class).getCredit(credit.getId())).withSelfRel());
         creditModel.add(linkTo(methodOn(CreditController.class).getCredits()).withRel(IanaLinkRelations.COLLECTION));
+        creditModel.add(linkTo(methodOn(EventController.class).getEvent(credit.getLoanApplication().getId())).withRel("events"));
         return creditModel;
     }
 }
