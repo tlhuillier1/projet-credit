@@ -1,22 +1,22 @@
 package fr.miage.banque.domain.dto;
 
-import fr.miage.banque.domain.entity.Loan;
+import fr.miage.banque.domain.entity.LoanApplication;
 
 public class LoanRequestDTO {
-    public Loan loan;
+    public LoanApplication loanApplication;
     public Long clientId;
 
-    public LoanRequestDTO(Loan loan, Long clientId) {
-        this.loan = loan;
+    public LoanRequestDTO(LoanApplication loanApplication, Long clientId) {
+        this.loanApplication = loanApplication;
         this.clientId = clientId;
     }
 
-    public Loan getLoan() {
-        return loan;
+    public LoanApplication getLoan() {
+        return loanApplication;
     }
 
-    public void setLoan(Loan loan) {
-        this.loan = loan;
+    public void setLoan(LoanApplication loanApplication) {
+        this.loanApplication = loanApplication;
     }
 
     public Long getClientId() {

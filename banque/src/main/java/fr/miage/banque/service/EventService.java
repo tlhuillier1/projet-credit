@@ -1,8 +1,8 @@
 package fr.miage.banque.service;
 
 import fr.miage.banque.domain.entity.Event;
-import fr.miage.banque.domain.entity.Loan;
+import fr.miage.banque.domain.entity.LoanApplication;
 
 public interface EventService {
-    Event createEvent(Loan loan);
+    Event createEvent(LoanApplication loanApplication);
 }

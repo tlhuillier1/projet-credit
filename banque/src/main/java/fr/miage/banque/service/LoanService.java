@@ -1,24 +1,26 @@
 package fr.miage.banque.service;
 
-import fr.miage.banque.domain.entity.Loan;
+import fr.miage.banque.domain.entity.LoanApplication;
 import fr.miage.banque.domain.entity.Worker;
 
 import java.util.List;
 
 public interface LoanService {
-    Loan createLoan(Loan loan);
+    LoanApplication createLoan(LoanApplication loanApplication);
 
-    List<Loan> getLoans(String status);
+    List<LoanApplication> getLoans(String status);
 
-    Loan getLoan(Long id);
+    LoanApplication getLoan(Long id);
 
-    Loan modifyLoan(Long id, Loan loan);
+    LoanApplication modifyLoan(Long id, LoanApplication loanApplication);
 
     String deleteLoan(Long id);
 
     String getStatus(Long id);
 
-    Loan applyForLoan(Long id);
+    LoanApplication applyForLoan(Long id);
 
-    Loan reviewLoan(Long id, String decision, Worker advisor);
+    LoanApplication reviewLoan(Long id, String decision, Worker advisor);
+
+    LoanApplication validateLoan(Long id, Worker worker, String decision);
 }

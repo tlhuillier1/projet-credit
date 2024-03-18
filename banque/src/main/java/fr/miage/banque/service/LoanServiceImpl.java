@@ -1,7 +1,7 @@
 package fr.miage.banque.service;
 
 import fr.miage.banque.domain.entity.BankJob;
-import fr.miage.banque.domain.entity.Loan;
+import fr.miage.banque.domain.entity.LoanApplication;
 import fr.miage.banque.domain.entity.LoanStatus;
 import fr.miage.banque.domain.entity.Worker;
 import fr.miage.banque.repository.LoanRepository;
@@ -22,20 +22,20 @@ public class LoanServiceImpl implements LoanService {
     private final WorkerRepository workerRepository;
 
     @Override
-    public Loan createLoan(Loan loan) {
-        loan.setCreatedAt(LocalDate.now());
-        loan.setUpdatedAt(LocalDateTime.now());
-        loan.setStatus(LoanStatus.DEBUT);
+    public LoanApplication createLoan(LoanApplication loanApplication) {
+        loanApplication.setCreatedAt(LocalDate.now());
+        loanApplication.setUpdatedAt(LocalDateTime.now());
+        loanApplication.setStatus(LoanStatus.DEBUT);
         Worker worker = new Worker();
         worker.setFirstName("John");
         worker.setLastName("Doe");
         worker.setJob(BankJob.ADVISOR);
         workerRepository.save(worker);
-        return loanRepository.save(loan);
+        return loanRepository.save(loanApplication);
     }
 
     @Override
-    public List<Loan> getLoans(String status) {
+    public List<LoanApplication> getLoans(String status) {
         if (status != null) {
             return loanRepository.findByStatus(LoanStatus.valueOf(status));
         } else {
@@ -44,17 +44,17 @@ public class LoanServiceImpl implements LoanService {
     }
 
     @Override
-    public Loan getLoan(Long id) {
+    public LoanApplication getLoan(Long id) {
         return loanRepository.findById(id).orElseThrow(() -> new NoSuchElementException("Loan not found"));
     }
 
     @Override
-    public Loan modifyLoan(Long id, Loan loan) {
+    public LoanApplication modifyLoan(Long id, LoanApplication loanApplication) {
         return loanRepository.findById(id)
                 .map(l -> {
-                    l.setAmount(loan.getAmount());
+                    l.setAmount(loanApplication.getAmount());
                     l.setUpdatedAt(LocalDateTime.now());
-                    l.setDuration(loan.getDuration());
+                    l.setDuration(loanApplication.getDuration());
                     return loanRepository.save(l);
                 })
                 .orElseThrow(() -> new NoSuchElementException("Loan not found"));
@@ -74,7 +74,7 @@ public class LoanServiceImpl implements LoanService {
     }
 
     @Override
-    public Loan applyForLoan(Long id) {
+    public LoanApplication applyForLoan(Long id) {
         return loanRepository.findById(id)
                 .map(loan -> {
                     loan.setStatus(LoanStatus.ETUDE);
@@ -84,7 +84,7 @@ public class LoanServiceImpl implements LoanService {
     }
 
     @Override
-    public Loan reviewLoan(Long id, String decision, Worker advisor) {
+    public LoanApplication reviewLoan(Long id, String decision, Worker advisor) {
         LoanStatus loanStatus;
         if (decision.equals("valide")) {
             loanStatus = LoanStatus.VALIDATION;
@@ -97,6 +97,25 @@ public class LoanServiceImpl implements LoanService {
                 .map(loan -> {
                     loan.setStatus(loanStatus);
                     loan.setReviewedBy(advisor);
+                    return loanRepository.save(loan);
+                })
+                .orElseThrow(() -> new NoSuchElementException("Loan not found"));
+    }
+
+    @Override
+    public LoanApplication validateLoan(Long id, Worker worker, String decision) {
+        LoanStatus loanStatus;
+        if (decision.equals("valide")) {
+            loanStatus = LoanStatus.VALIDATION;
+        } else if (decision.equals("refuse")) {
+            loanStatus = LoanStatus.REJET;
+        } else {
+            throw new IllegalArgumentException("Invalid decision");
+        }
+        return loanRepository.findById(id)
+                .map(loan -> {
+                    loan.setStatus(loanStatus);
+                    loan.setValidateBy(worker);
                     return loanRepository.save(loan);
                 })
                 .orElseThrow(() -> new NoSuchElementException("Loan not found"));

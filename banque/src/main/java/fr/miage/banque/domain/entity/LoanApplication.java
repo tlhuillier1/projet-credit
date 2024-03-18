@@ -12,7 +12,7 @@ import java.time.LocalDateTime;
 @Entity
 @Data
 @JsonIdentityInfo(generator = ObjectIdGenerators.PropertyGenerator.class,property = "id")
-public class Loan extends RepresentationModel<Loan> {
+public class LoanApplication extends RepresentationModel<LoanApplication> {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     public Long id;
@@ -24,6 +24,8 @@ public class Loan extends RepresentationModel<Loan> {
     public double amount;
 
     public int duration;
+
+    private double rate;
 
     public LoanStatus status;
 

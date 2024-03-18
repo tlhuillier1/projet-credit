@@ -6,7 +6,6 @@ import com.fasterxml.jackson.annotation.ObjectIdGenerators;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.Email;
 import lombok.Data;
-import org.springframework.hateoas.RepresentationModel;
 
 
 import java.util.List;
@@ -34,7 +33,7 @@ public class Client {
 
     @JsonIgnore
     @OneToMany(mappedBy = "client", cascade = CascadeType.ALL, orphanRemoval = true)
-    private List<Loan> loans;
+    private List<LoanApplication> loanApplications;
 
 }
 

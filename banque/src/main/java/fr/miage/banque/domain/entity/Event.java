@@ -4,16 +4,15 @@ import jakarta.persistence.*;
 import lombok.Data;
 
 import java.time.LocalDateTime;
-import java.util.UUID;
 
 @Entity
 @Data
 public class Event {
 
-    public Event(Loan loan) {
-        this.loan = loan;
+    public Event(LoanApplication loanApplication) {
+        this.loanApplication = loanApplication;
         this.date = LocalDateTime.now();
-        this.status = loan.getStatus();
+        this.status = loanApplication.getStatus();
     }
 
     @Id
@@ -22,7 +21,7 @@ public class Event {
 
     @ManyToOne
     @JoinColumn(name = "loanId")
-    private Loan loan;
+    private LoanApplication loanApplication;
 
     private LocalDateTime date;
 

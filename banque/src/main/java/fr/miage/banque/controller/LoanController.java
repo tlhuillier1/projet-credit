@@ -4,7 +4,7 @@ import fr.miage.banque.assembler.LoanAssembler;
 import fr.miage.banque.domain.dto.LoanRequestDTO;
 import fr.miage.banque.domain.entity.BankJob;
 import fr.miage.banque.domain.entity.Client;
-import fr.miage.banque.domain.entity.Loan;
+import fr.miage.banque.domain.entity.LoanApplication;
 import fr.miage.banque.domain.entity.Worker;
 import fr.miage.banque.repository.ClientRepository;
 import fr.miage.banque.repository.WorkerRepository;
@@ -13,10 +13,6 @@ import fr.miage.banque.service.LoanService;
 import io.github.resilience4j.circuitbreaker.annotation.CircuitBreaker;
 import io.github.resilience4j.retry.annotation.Retry;
 import lombok.AllArgsConstructor;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.context.annotation.Lazy;
 import org.springframework.data.repository.query.Param;
 import org.springframework.hateoas.CollectionModel;
 import org.springframework.hateoas.EntityModel;
@@ -43,18 +39,18 @@ public class LoanController {
 
 
     @PostMapping
-    public ResponseEntity<EntityModel<Loan>> createLoan(@RequestBody LoanRequestDTO loanRequestDTO) {
+    public ResponseEntity<EntityModel<LoanApplication>> createLoan(@RequestBody LoanRequestDTO loanRequestDTO) {
         try {
             Client client = clientRepository.findById(loanRequestDTO.getClientId()).orElseThrow(() -> new NoSuchElementException("Client not found"));
-            Loan requestDTOLoan = loanRequestDTO.getLoan();
-            requestDTOLoan.setClient(client);
-            Loan loan = loanService.createLoan(requestDTOLoan);
+            LoanApplication requestDTOLoanApplication = loanRequestDTO.getLoan();
+            requestDTOLoanApplication.setClient(client);
+            LoanApplication loanApplication = loanService.createLoan(requestDTOLoanApplication);
 
-            eventService.createEvent(loan);
+            eventService.createEvent(loanApplication);
 
-            EntityModel<Loan> loanModel = loanAssembler.toModel(loan);
+            EntityModel<LoanApplication> loanModel = loanAssembler.toModel(loanApplication);
             return ResponseEntity.created(linkTo(methodOn(LoanController.class)
-                    .getLoan(loan.getId())).toUri())
+                    .getLoan(loanApplication.getId())).toUri())
                     .body(loanModel);
         } catch (NoSuchElementException e) {
             return ResponseEntity.notFound().build();
@@ -62,22 +58,22 @@ public class LoanController {
     }
 
     @GetMapping
-    public ResponseEntity<CollectionModel<EntityModel<Loan>>> getLoans(@Param("status") String status) {
-        List<Loan> loans = loanService.getLoans(status);
-        if (loans.isEmpty()) {
+    public ResponseEntity<CollectionModel<EntityModel<LoanApplication>>> getLoans(@Param("status") String status) {
+        List<LoanApplication> loanApplications = loanService.getLoans(status);
+        if (loanApplications.isEmpty()) {
             return ResponseEntity.noContent().build();
         } else {
-            CollectionModel<EntityModel<Loan>> collectionModel = loanAssembler.toCollectionModel(loans);
+            CollectionModel<EntityModel<LoanApplication>> collectionModel = loanAssembler.toCollectionModel(loanApplications);
             collectionModel.add(linkTo(methodOn(LoanController.class).getLoans(null)).withSelfRel());
             return ResponseEntity.ok(collectionModel);
         }
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<EntityModel<Loan>> getLoan(@PathVariable("id") Long id) {
+    public ResponseEntity<EntityModel<LoanApplication>> getLoan(@PathVariable("id") Long id) {
         try {
-            Loan loan = loanService.getLoan(id);
-            EntityModel<Loan> loanModel = loanAssembler.toModel(loan);
+            LoanApplication loanApplication = loanService.getLoan(id);
+            EntityModel<LoanApplication> loanModel = loanAssembler.toModel(loanApplication);
             return ResponseEntity.ok(loanModel);
         } catch (NoSuchElementException e) {
             return ResponseEntity.notFound().build();
@@ -85,10 +81,10 @@ public class LoanController {
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<EntityModel<Loan>> modifyLoan(@PathVariable("id") Long id, @RequestBody Loan loan) {
+    public ResponseEntity<EntityModel<LoanApplication>> modifyLoan(@PathVariable("id") Long id, @RequestBody LoanApplication loanApplication) {
         try {
-            Loan modifiedLoan = loanService.modifyLoan(id, loan);
-            EntityModel<Loan> loanModel = loanAssembler.toModel(modifiedLoan);
+            LoanApplication modifiedLoanApplication = loanService.modifyLoan(id, loanApplication);
+            EntityModel<LoanApplication> loanModel = loanAssembler.toModel(modifiedLoanApplication);
             return ResponseEntity.ok(loanModel);
         } catch (NoSuchElementException e) {
             return ResponseEntity.notFound().build();
@@ -110,12 +106,12 @@ public class LoanController {
     }
 
     @PutMapping("/{id}/apply")
-    public ResponseEntity<EntityModel<Loan>> applyForLoan(@PathVariable("id") Long id) {
+    public ResponseEntity<EntityModel<LoanApplication>> applyForLoan(@PathVariable("id") Long id) {
         try {
-            Loan loan = loanService.applyForLoan(id);
+            LoanApplication loanApplication = loanService.applyForLoan(id);
 
-            eventService.createEvent(loan);
-            EntityModel<Loan> loanModel = loanAssembler.toModel(loan);
+            eventService.createEvent(loanApplication);
+            EntityModel<LoanApplication> loanModel = loanAssembler.toModel(loanApplication);
             return ResponseEntity.ok(loanModel);
         } catch (NoSuchElementException e) {
             return ResponseEntity.notFound().build();
@@ -125,7 +121,7 @@ public class LoanController {
     @PutMapping("/{id}/review")
     @CircuitBreaker(name = "finance", fallbackMethod = "reviewLoanFallback")
     @Retry(name = "finance")
-    public ResponseEntity<EntityModel<Loan>> reviewLoan(@PathVariable("id") Long id, @RequestParam String decision, @RequestParam Long advisorId) {
+    public ResponseEntity<EntityModel<LoanApplication>> reviewLoan(@PathVariable("id") Long id, @RequestParam String decision, @RequestParam Long advisorId) {
         try {
             Worker advisor = workerRepository.findById(advisorId).orElseThrow(() -> new NoSuchElementException("Advisor not found"));
             if (advisor.getJob() != BankJob.ADVISOR) {
@@ -141,9 +137,9 @@ public class LoanController {
                 //traitement à faire
                 throw new IllegalArgumentException("Client is not eligible for a loan");
             } else {
-                Loan loan = loanService.reviewLoan(id, decision, advisor);
-                eventService.createEvent(loan);
-                EntityModel<Loan> loanModel = loanAssembler.toModel(loan);
+                LoanApplication loanApplication = loanService.reviewLoan(id, decision, advisor);
+                eventService.createEvent(loanApplication);
+                EntityModel<LoanApplication> loanModel = loanAssembler.toModel(loanApplication);
                 return ResponseEntity.ok(loanModel);
             }
         } catch (NoSuchElementException e) {
@@ -155,6 +151,24 @@ public class LoanController {
 
     public ResponseEntity<String> reviewLoanFallback(RuntimeException re) {
         return ResponseEntity.status(503).body("Service unavailable");
+    }
+
+    @PutMapping("/{id}/validate")
+    public ResponseEntity<EntityModel<LoanApplication>> validateLoan(@PathVariable("id") Long id, @RequestParam Long advisorId, @RequestParam String decision) {
+        try {
+            Worker advisor = workerRepository.findById(advisorId).orElseThrow(() -> new NoSuchElementException("Advisor not found"));
+            if (advisor.getJob() != BankJob.CREDIT_MANAGER) {
+                throw new IllegalArgumentException("Worker is not an advisor");
+            }
+            LoanApplication loanApplication = loanService.validateLoan(id, advisor, decision);
+            eventService.createEvent(loanApplication);
+            EntityModel<LoanApplication> loanModel = loanAssembler.toModel(loanApplication);
+            return ResponseEntity.ok(loanModel);
+        } catch (NoSuchElementException e) {
+            return ResponseEntity.notFound().build();
+        } catch  (IllegalArgumentException e) {
+            return ResponseEntity.badRequest().build();
+        }
     }
 
 }
